@@ -8,27 +8,30 @@
 #define backColourErr   4
 #define foreColour      15
 
-static uint16_t attribute = ((backColour << 4) | (foreColour & 0xFF)) << 8;
-static uint16_t attributeErr = ((backColourErr << 4) | (foreColour & 0xFF)) << 8;
-
 static volatile uint16_t *buff = (volatile uint16_t*)(VGA_ADDR);
+static uint16_t attribute;
 
 static uint16_t cursor_x = 0;
 static uint16_t cursor_y = 0;
 
+void vga_init() {
+    vga_set_color(foreColour,backColour);
+}
 
+void vga_set_color(uint8_t fg, uint8_t bg) {
+    uint8_t attributeByte = (bg << 4) | (fg & 0x0F);
+    attribute = attributeByte << 8;
+}
 
 void vga_putchar(char c) { 
     buff[cursor_y * VGA_WIDTH + cursor_x] = attribute + c;
 }
 
 void kperror(char *s) {
-    int i = 0;
-    while (s[i] != '\0') {
-        buff[cursor_y * VGA_WIDTH + cursor_x] = attributeErr + s[i];
-        cursor_x++;
-        i++;
-    }
+    uint16_t curr_attribute = attribute;
+    vga_set_color(foreColour,backColourErr);
+    kprintf(s);
+    attribute = curr_attribute;
 }
 
 void kprintf(char *s) {
