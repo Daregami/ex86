@@ -1,8 +1,10 @@
 
-void kmain() {
-    volatile char *buff = (volatile char *)0xB8000;
+#include "drivers/vga.h"
 
-    buff[0] = 0x06;
+void kmain() {
+    char *s = "Hello, world!";
+    kprintf(s);
+    kperror(s);
 
     while(1) {
         __asm__ volatile ("cli; hlt");
