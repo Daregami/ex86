@@ -1,13 +1,20 @@
 bits 32
 
+MALIGN      equ 1 << 0
+MEMINFO     equ 1 << 1
+
+GRUB_MAGIC  equ 0x1BADB002
+GRUB_FLUGS  equ MEMINFO
+GRUB_HASH   equ - (GRUB_MAGIC + GRUB_FLUGS)
+
 global _start
 extern kmain
 
 section .multiboot
 align 4
-    dd 0x1BADB002
-    dd 0x00
-    dd - (0x1BADB002 + 0x00)
+    dd GRUB_MAGIC
+    dd GRUB_FLUGS
+    dd GRUB_HASH
 
 section .text
 _start:
