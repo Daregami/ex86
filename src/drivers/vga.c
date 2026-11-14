@@ -16,11 +16,22 @@ static uint16_t cursor_y = 0;
 
 void vga_init() {
     vga_set_color(foreColour,backColour);
+    vga_clear();
 }
 
 void vga_set_color(uint8_t fg, uint8_t bg) {
     uint8_t attributeByte = (bg << 4) | (fg & 0x0F);
     attribute = attributeByte << 8;
+}
+
+void vga_set_cursor (uint16_t x, uint16_t y) {
+    return;
+}
+
+void vga_clear() {
+    for (int i = 0; i < (VGA_WIDTH * VGA_HEIGHT); i++) {
+        buff[i] = attribute + ' ';
+    }
 }
 
 void vga_putchar(char c) { 
@@ -37,8 +48,16 @@ void kperror(char *s) {
 void kprintf(char *s) {
     int i = 0;
     while (s[i] != '\0') {
-        vga_putchar(s[i]);
-        cursor_x++;
+        switch (s[i]) {
+            case '\n':
+                cursor_x = 0;
+                cursor_y++;
+                break;
+            default:
+                vga_putchar(s[i]);
+                cursor_x++;
+                break;
+        }
         i++;
     }
 }

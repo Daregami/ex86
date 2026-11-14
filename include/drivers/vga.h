@@ -5,6 +5,7 @@
 
 void vga_init();
 void vga_putchar(char c);
+void vga_clear();
 //void vga_clear();
 void kperror(char *s);
 void kprintf(char *s);

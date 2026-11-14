@@ -4,7 +4,7 @@
 void kmain() {
     vga_init();
 
-    char *s = "Hello, world!";
+    char *s = "Hello, wor\nld!";
     kprintf(s);
     kperror(s);
     kprintf(s);
