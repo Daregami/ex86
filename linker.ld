@@ -28,7 +28,6 @@ SECTIONS
     .data ALIGN(4K) : AT(ADDR(.data) - KERNEL_VMA)
     {
         *(.data)
-        . = ALIGN(4096);
     }
 
     .rodata ALIGN(4K) : AT(ADDR(.rodata) - KERNEL_VMA)
