@@ -28,7 +28,7 @@ bin/exomos.iso: bin/kernel.bin src/boot/grub.cfg
 	cp src/boot/grub.cfg bin/isodir/boot/grub/grub.cfg
 	grub-mkrescue -o $@ bin/isodir
 
-run:
+run: bin/exomos.iso
 	$(QEMU) -cdrom bin/exomos.iso
 
 clean:
