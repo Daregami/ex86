@@ -4,7 +4,7 @@
 
 extern void gdt_flush(uint32_t tgp);
 
-static struct gdt_entry gdt_table[GDT_ENTRIES];
+static struct gdt_entry gdt_table[GDT_ENTRIES] = {0};
 static struct gdt_ptr gp;
 
 struct gdt_entry {

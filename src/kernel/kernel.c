@@ -11,6 +11,10 @@ void kmain() {
     char *s = "Hello, world!\n";
     kprintf(s);
 
+    asm volatile ("int $32");
+
+    kprintf(s);
+
     while(1) {
         __asm__ volatile ("cli; hlt");
     }
