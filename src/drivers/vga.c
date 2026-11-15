@@ -1,4 +1,5 @@
 #include "drivers/vga.h"
+#include "cpu/ports.h"
 
 #define VGA_ADDR        0xB8000
 #define VGA_WIDTH       80
@@ -24,18 +25,62 @@ void vga_set_color(uint8_t fg, uint8_t bg) {
     attribute = attributeByte << 8;
 }
 
-void vga_set_cursor (uint16_t x, uint16_t y) {
-    return;
+static void vga_cursor_move() {
+    uint16_t cursorLocation = cursor_y * 80 + cursor_x;
+    outb(0x3D4,14);
+    outb(0x3D5,cursorLocation >> 8);
+    outb(0x3D4,15);
+    outb(0x3D5,cursorLocation);
+}
+
+void vga_set_cursor(uint16_t x, uint16_t y) {
+    cursor_x = x;
+    cursor_y = y;
+    vga_cursor_move();
 }
 
 void vga_clear() {
     for (int i = 0; i < (VGA_WIDTH * VGA_HEIGHT); i++) {
         buff[i] = attribute + ' ';
     }
+    vga_set_cursor(0,0);
 }
 
-void vga_putchar(char c) { 
-    buff[cursor_y * VGA_WIDTH + cursor_x] = attribute + c;
+static void vga_scroll() {
+    for (int i = 0; i < (VGA_HEIGHT - 1) * VGA_WIDTH; i++) {
+        buff[i] = buff[i + VGA_WIDTH];
+    }
+
+    uint16_t curr_attribute = attribute;
+    vga_set_color(foreColour,backColour);
+
+    for (int i = (VGA_HEIGHT - 1) * VGA_WIDTH; i < VGA_WIDTH * VGA_HEIGHT; i++) {
+        buff[i] = attribute + ' ';
+    }
+    
+    attribute = curr_attribute;
+
+    cursor_y = VGA_HEIGHT - 1;
+    cursor_x = 0;
+}
+
+void vga_putchar(char c) {
+    if (c == '\n') {
+        cursor_x = 0;
+        cursor_y++;
+    } else {
+        buff[cursor_y * VGA_WIDTH + cursor_x] = attribute + c;
+        cursor_x++;
+    }
+
+    if (cursor_x >= VGA_WIDTH) {
+        cursor_x = 0;
+        cursor_y++;
+    }
+
+    if (cursor_y >= VGA_HEIGHT) {
+        vga_scroll();
+    }
 }
 
 void kperror(char *s) {
@@ -48,16 +93,8 @@ void kperror(char *s) {
 void kprintf(char *s) {
     int i = 0;
     while (s[i] != '\0') {
-        switch (s[i]) {
-            case '\n':
-                cursor_x = 0;
-                cursor_y++;
-                break;
-            default:
-                vga_putchar(s[i]);
-                cursor_x++;
-                break;
-        }
+        vga_putchar(s[i]);
         i++;
     }
+    vga_cursor_move();
 }

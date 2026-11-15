@@ -4,10 +4,13 @@
 void kmain() {
     vga_init();
 
-    char *s = "Hello, wor\nld!";
+    char *s = "Hello, world!";
+    for (int i = 0; i < 151; i++) {
+        kprintf(s);
+    }
+    kprintf(s);
     kprintf(s);
     kperror(s);
-    kprintf(s);
 
     while(1) {
         __asm__ volatile ("cli; hlt");
