@@ -1,8 +1,10 @@
 
 #include "drivers/vga.h"
+#include "cpu/idt.h"
 
 void kmain() {
     vga_init();
+    idt_init();
 
     char *s = "Hello, world!";
     for (int i = 0; i < 151; i++) {

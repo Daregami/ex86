@@ -5,33 +5,36 @@ QEMU = qemu-system-i386
 
 CFLAGS = -m32 -ffreestanding -fno-stack-protector -fno-pic -mno-sse -mno-sse2 -mno-mmx -Wall -Iinclude -Wextra -MMD -MP
 
-all: bin/exomos.iso
+C_SRCS := $(shell find src -name '*.c')
+ASM_SRCS := $(shell find src -name '*.asm')
 
-bin/boot.o: src/boot/boot.asm
-	mkdir -p bin
-	$(ASM) -f elf32 src/boot/boot.asm -o bin/boot.o
+C_OBJS := $(patsubst src/%.c, build/%.o, $(C_SRCS))
+ASM_OBJS := $(patsubst src/%.asm, build/%.o, $(ASM_SRCS))
+OBJS := $(ASM_OBJS) $(C_OBJS)
 
-bin/vga.o: src/drivers/vga.c
-	mkdir -p bin
-	$(CC) $(CFLAGS) -c src/drivers/vga.c -o $@
+all: build/exomos.iso
 
-bin/kernel.o: src/kernel/kernel.c
-	mkdir -p bin
-	$(CC) $(CFLAGS) -c src/kernel/kernel.c -o $@
+build/%.o: src/%.asm
+	mkdir -p $(dir $@)
+	$(ASM) -f elf32 $< -o $@
 
-bin/kernel.bin: bin/kernel.o bin/boot.o bin/vga.o linker.ld
-	$(LD) -m elf_i386 -T linker.ld -o $@ bin/boot.o bin/kernel.o bin/vga.o
+build/%.o: src/%.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/exomos.iso: bin/kernel.bin src/boot/grub.cfg
-	mkdir -p bin/isodir/boot/grub
-	cp bin/kernel.bin bin/isodir/boot/kernel.bin
-	cp src/boot/grub.cfg bin/isodir/boot/grub/grub.cfg
-	grub-mkrescue -o $@ bin/isodir
+build/kernel.bin: $(OBJS) linker.ld
+	$(LD) -m elf_i386 -T linker.ld -o $@ $(OBJS)
 
-run: bin/exomos.iso
-	$(QEMU) -cdrom bin/exomos.iso
+build/exomos.iso: build/kernel.bin src/boot/grub.cfg
+	mkdir -p build/isodir/boot/grub
+	cp build/kernel.bin build/isodir/boot/kernel.bin
+	cp src/boot/grub.cfg build/isodir/boot/grub/grub.cfg
+	grub-mkrescue -o $@ build/isodir
+
+run: build/exomos.iso
+	$(QEMU) -cdrom build/exomos.iso
 
 clean:
-	rm -rf bin
+	rm -rf build
 
 .PHONY: all run clean
