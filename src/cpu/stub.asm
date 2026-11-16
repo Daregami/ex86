@@ -11,7 +11,7 @@
   global isr%1
   isr%1:
     cli
-    push byte %1
+    push %1
     jmp interrupt_stub
 %endmacro
 
@@ -19,8 +19,8 @@
   global isr%1
   isr%1:
     cli
-    push byte 0
-    push byte %1
+    push 0
+    push %1
     jmp interrupt_stub
 %endmacro
 
@@ -59,6 +59,8 @@ ISR_NOERR 28
 ISR_NOERR 29
 ISR_NOERR 30
 ISR_NOERR 31
+
+ISR_NOERR 128
 
 extern interrupt_handler
 

@@ -15,11 +15,7 @@ void kmain() {
 
     //kprintf(s);
 
-    asm volatile (
-        "mov $0, %%ecx\n"
-        "div %%ecx\n"
-        : : : "eax", "edx", "ecx"
-    );
+    asm volatile ("int $0x80");
 
     //asm volatile ("int $32");
 

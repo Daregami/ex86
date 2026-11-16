@@ -24,6 +24,7 @@ typedef struct {
 } __attribute__((packed)) reg_t;
 
 typedef void (*isr_t)(reg_t);
+void register_interrupt_handler(uint8_t n, isr_t handler);
 
 void idt_init();
 
