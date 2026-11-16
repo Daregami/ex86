@@ -8,12 +8,16 @@ void kmain() {
     gdt_init();
     idt_init();
 
-    char *s = "Hello, world!\n";
-    kprintf(s);
+    //char *s = "Hello, world!\n";
+    kprintf("Hello - %d\n", 55);
 
     asm volatile ("int $32");
 
-    kprintf(s);
+    //kprintf(s);
+
+    asm volatile ("int $32");
+
+    kprintf("Hello - %d\n", 343489);
 
     while(1) {
         __asm__ volatile ("cli; hlt");

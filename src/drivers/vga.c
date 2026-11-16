@@ -1,5 +1,6 @@
 #include "drivers/vga.h"
 #include "cpu/ports.h"
+#include <stdarg.h>
 
 #define VGA_ADDR        0xC00B8000
 #define VGA_WIDTH       80
@@ -83,18 +84,79 @@ void vga_putchar(char c) {
     }
 }
 
-void kperror(char *s) {
-    uint16_t curr_attribute = attribute;
-    vga_set_color(foreColour,backColourErr);
-    kprintf(s);
-    attribute = curr_attribute;
+void vga_puts(const char* str) {
+    int i = 0;
+    while (str[i] != '\0') {
+        vga_putchar(str[i++]);
+    }
 }
 
-void kprintf(char *s) {
+void itoa(int32_t value, char* s, int base) {
+    char digits[] = "0123456789ABCDEF";
+    char buf[32];
     int i = 0;
+    int j = 0;
+
+    if (value < 0 && base == 10) {
+        s[j++] = '-';
+        value = -value;
+    }
+
+    do {
+        int rem = value % base;
+        buf[i++] = digits[rem];
+        value /= base;
+    } while(value > 0);
+
+    while(i > 0) {
+        s[j++] = buf[--i];
+    }
+
+    s[j] = '\0';
+}
+
+static void kvprintf(const char *s, va_list args) {
+    char num[32];
+    int i = 0;
+
+    int32_t arg;
+
     while (s[i] != '\0') {
-        vga_putchar(s[i]);
-        i++;
+        if (s[i] == '%') {
+            switch (s[i+1]) {
+                case 'd':
+                    arg = va_arg(args, int32_t);
+                    itoa(arg, num, 10);
+                    vga_puts(num);
+                    i += 2;
+                    break;
+                default:
+                    vga_putchar(s[i++]);
+                    break;
+            }
+        } else {
+            vga_putchar(s[i++]);
+        }
     }
     vga_cursor_move();
+    va_end(args);
+}
+
+void kprintf(const char *s, ...) {
+    va_list args;
+    va_start(args, s);
+    kvprintf(s, args);
+    va_end(args);
+}
+
+void kperror(const char *s, ...) {
+    uint16_t curr_attribute = attribute;
+    vga_set_color(foreColour, backColourErr);
+
+    va_list args;
+    va_start(args, s);
+    kvprintf(s, args);
+    va_end(args);
+
+    attribute = curr_attribute;
 }
