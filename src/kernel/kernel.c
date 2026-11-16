@@ -11,11 +11,17 @@ void kmain() {
     //char *s = "Hello, world!\n";
     kprintf("Hello - %d\n", 55);
 
-    asm volatile ("int $32");
+    //asm volatile ("int $32");
 
     //kprintf(s);
 
-    asm volatile ("int $32");
+    asm volatile (
+        "mov $0, %%ecx\n"
+        "div %%ecx\n"
+        : : : "eax", "edx", "ecx"
+    );
+
+    //asm volatile ("int $32");
 
     kprintf("Hello - 0x%x\n", 55);
 

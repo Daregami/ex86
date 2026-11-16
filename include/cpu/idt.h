@@ -23,6 +23,8 @@ typedef struct {
     uint32_t eip, cs, eflags, useresp, ss;
 } __attribute__((packed)) reg_t;
 
+typedef void (*isr_t)(reg_t);
+
 void idt_init();
 
 #endif
