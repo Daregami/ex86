@@ -2,6 +2,7 @@
 #include "drivers/vga.h"
 #include "cpu/idt.h"
 #include "cpu/gdt.h"
+#include "kernel/proc.h"
 
 void kmain() {
     vga_init();
@@ -20,6 +21,8 @@ void kmain() {
     //asm volatile ("int $32");
 
     kprintf("Hello - 0x%x\n", 55);
+
+    enter_usermode();
 
     while(1) {
         __asm__ volatile ("cli; hlt");

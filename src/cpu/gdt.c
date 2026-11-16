@@ -1,8 +1,9 @@
 #include "cpu/gdt.h"
 
-#define GDT_ENTRIES 5
+#define GDT_ENTRIES 6
 
 extern void gdt_flush(uint32_t tgp);
+extern void tss_flush();
 
 static struct gdt_entry gdt_table[GDT_ENTRIES] = {0};
 static struct gdt_ptr gp;
@@ -33,8 +34,11 @@ void gdt_init() {
     gdt_set_gate(3,0,0xFFFFFFFF,0xFA,0xCF);
     gdt_set_gate(4,0,0xFFFFFFFF,0xF2,0xCF);
 
+    tss_init(5,0x10,0);
+
     gp.limit = (sizeof(struct gdt_entry) * GDT_ENTRIES) - 1;
     gp.base = (uint32_t)&gdt_table;
 
     gdt_flush((uint32_t)&gp);
+    tss_flush();
 }
