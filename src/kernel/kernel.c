@@ -17,7 +17,7 @@ void kmain() {
 
     asm volatile ("int $32");
 
-    kprintf("Hello - %d\n", 343489);
+    kprintf("Hello - 0x%x\n", 55);
 
     while(1) {
         __asm__ volatile ("cli; hlt");

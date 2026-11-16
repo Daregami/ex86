@@ -130,6 +130,12 @@ static void kvprintf(const char *s, va_list args) {
                     vga_puts(num);
                     i += 2;
                     break;
+                case 'x':
+                    arg = va_arg(args, int32_t);
+                    itoa(arg, num, 16);
+                    vga_puts(num);
+                    i += 2;
+                    break;
                 default:
                     vga_putchar(s[i++]);
                     break;
