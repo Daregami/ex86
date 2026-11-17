@@ -22,25 +22,21 @@ align 4
     dd GRUB_FLUGS
     dd GRUB_HASH
 
-global kernel_page_table
+; global kernel_page_table
 
 section .boot.data
 align 4096
 kernel_page_directory:
-    ; 00000011 - present, r/w
-    dd kernel_page_table + 0x03
+    ; 10000011 - present, r/w, PSE - 4mb
+    dd 0x00000000 + 0x83
     times (USER_INDEX - 1) dd 0
     dd user_page_table + 0x07
     times (KERNEL_VIRT_INDEX - USER_INDEX - 1) dd 0
     ; times (KERNEL_VIRT_INDEX - 1) dd 0
-    dd kernel_page_table + 0x03
-    times (1024 - KERNEL_VIRT_INDEX - 1) dd 0
-
-align 4096
-kernel_page_table:
+    
     %assign i 0
-    %rep 1024
-        dd (i * 0x1000) + 0x03
+    %rep 256
+        dd (i << 22) | 0x83
         %assign i i+1
     %endrep
 
@@ -56,12 +52,16 @@ section .boot.text
 _start:
     cli
 
-    mov eax, kernel_page_directory
-    mov cr3, eax
+    mov edx, kernel_page_directory
+    mov cr3, edx
 
-    mov eax, cr0
-    or eax, 0x80000000 ; 31 bit PG
-    mov cr0, eax
+    mov edx, cr4
+    or edx, 0x00000010 ; PSE
+    mov cr4, edx
+
+    mov edx, cr0
+    or edx, 0x80000000 ; 31 bit PG
+    mov cr0, edx
 
     lea ecx, [high_addr]
     jmp ecx
@@ -73,6 +73,8 @@ high_addr:
     mov cr3, ecx
 
     mov esp, stack_up
+    push ebx
+    push eax
     call kmain
 
 .halt:

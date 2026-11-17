@@ -1,4 +1,3 @@
-#include "kernel/lib/string.h"
 #include "cpu/tss.h"
 
 tss_entry_t tss = {0};

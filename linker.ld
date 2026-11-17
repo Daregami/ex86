@@ -7,6 +7,8 @@ SECTIONS
 {
     . = KERNEL_LMA;
 
+    _kernel_start = .;
+
     .boot.text :
     {
         *(.multiboot)
@@ -40,4 +42,6 @@ SECTIONS
         *(.COMMON)
         *(.bss)
     }
+
+    _kernel_end = .;
 }
