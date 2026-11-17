@@ -4,6 +4,8 @@
 #include "cpu/gdt.h"
 #include "kernel/proc.h"
 
+#include <stdint.h>
+
 void kmain() {
     vga_init();
     gdt_init();
@@ -20,7 +22,7 @@ void kmain() {
 
     //asm volatile ("int $32");
 
-    kprintf("Hello - 0x%x\n", 55);
+    //kprintf("Hello - 0x%x\n", pt[1]);
 
     enter_usermode();
 

@@ -3,14 +3,17 @@
 
 extern void usermode(uint32_t entry_point, uint32_t user_stack);
 
-void user_test_func() {
-    while (1);
-}
-
 void enter_usermode() {
+    uint8_t *user_code_area = (uint8_t *)0x40000000;
+
+    user_code_area[0] = 0xCD; // int
+    user_code_area[1] = 0x80; // 0x80 (вызов сискола)
+    user_code_area[2] = 0xEB; // jmp short -2
+    user_code_area[3] = 0xFE; // бесконечный цикл (while(1))
+
     uint32_t kesp;
     asm volatile("mov %%esp, %0" : "=r"(kesp));
     tss_set_stack(0x10, kesp);
 
-    usermode((uint32_t)&user_test_func, 0);
+    usermode(0x40000000, 0x40002000);
 }
