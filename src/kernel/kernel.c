@@ -3,19 +3,16 @@
 #include "cpu/idt.h"
 #include "cpu/gdt.h"
 #include "kernel/proc.h"
-
 #include <stdint.h>
+#include "kernel/multiboot.h"
 
-typedef uint32_t multiboot_info_t;
 
 void kmain(uint32_t magic, multiboot_info_t *boot_phys) {
-    (void)boot_phys;
-
     vga_init();
     gdt_init();
     idt_init();
 
-    kprintf("magic = %x", magic);
+    parse_memory(magic, boot_phys);
 
     //char *s = "Hello, world!\n";
     kprintf("Hello - %d\n", 55);
