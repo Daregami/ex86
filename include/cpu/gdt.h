@@ -18,6 +18,5 @@ struct gdt_ptr {
 } __attribute__ ((packed));
 
 void gdt_init();
-void tss_init(int num,uint32_t kss,uint32_t kesp);
 
 #endif

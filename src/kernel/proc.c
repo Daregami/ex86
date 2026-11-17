@@ -15,5 +15,5 @@ void enter_usermode() {
     asm volatile("mov %%esp, %0" : "=r"(kesp));
     tss_set_stack(0x10, kesp);
 
-    usermode(0x40000000, 0x40002000);
+    usermode((uint32_t)user_code_area, 0x40002000);
 }

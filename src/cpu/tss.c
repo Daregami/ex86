@@ -1,17 +1,13 @@
+#include "kernel/lib/string.h"
 #include "cpu/tss.h"
 
-tss_entry_t tss;
+tss_entry_t tss = {0};
 
 void tss_init(int num, uint32_t kss, uint32_t kesp) {
     uint32_t base = (uint32_t)&tss;
     uint32_t limit = sizeof(tss_entry_t) - 1;
 
     gdt_set_gate(num, base, limit, 0x89, 0);
-
-    uint8_t *ptr = (uint8_t*)&tss;
-    for (uint32_t i = 0; i < sizeof(tss_entry_t); i++) {
-        ptr[i] = 0;
-    }
 
     tss.ss0 = kss;
     tss.esp0 = kesp;
